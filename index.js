@@ -24,6 +24,7 @@ app.get('/', function (req, res) {
     res.status(200).send("welcome to the signup page");
 })
 
+//signup
 app.post('/signup', jsonparser, function (req, res) {
 
     var newuser = new User(req.body);
@@ -48,6 +49,7 @@ app.post('/signup', jsonparser, function (req, res) {
 
 });
 
+//insert product
 app.post('/product/create', jsonparser, function (req, res) {
 
     var newproduct = new Product(req.body);
@@ -65,29 +67,62 @@ app.post('/product/create', jsonparser, function (req, res) {
 
 })
 
-app.get('/product/list', function (req,res) {
-    Product.find({}, function(err, cursor){
-        if(err){
-            return res.status(500).json({error:true, message:"Product not listed"})
+//list all product
+app.get('/product/list', function (req, res) {
+    Product.find({}, function (err, cursor) {
+        if (err) {
+            return res.status(500).json({ error: true, message: "Product not listed" })
         }
-        else{
-            return res.status(200).json({success:true, message:"Data is retrieved", data:cursor})
+        else {
+            return res.status(200).json({ success: true, message: "Data is retrieved", data: cursor })
         }
     })
 })
 
-app.get('product/list/id', function (req,res) {
+//list product by id
+app.get('/product/list/:id', function (req, res) {
     //var id = req.params.id ;
-    Product.findById(req.params.id, function(err, cursor) {
-        if(err){
-            return res.status(500).json({error:true, message:"Product not found"})
+    Product.findById(req.params.id, function (err, cursor) {
+        if (err) {
+            return res.status(500).json({ error: true, message: "Product not found" })
         }
-        else{
-            return res.status(200).json({success:true, message:"Data is retrieved", data:cursor})
+        else {
+            return res.status(200).json({ success: true, message: "Data is retrieved", data: cursor })
         }
     })
 })
 
+//Delete product by id
+app.delete('/product/delete/:id', async (req, res) => {
+    try {
+        await Product.findByIdAndRemove(req.params.id);
+        return res.status(200).json({ error: true, message: "Data is deleted" })
+    } catch (err) {
+        return res.status(500).json({ success: true, message: "Data is not deleted", data: cursor })
+    }
+})
+
+//update product by id
+app.put('/product/list/:id/edit', jsonparser, function (req, res) {
+    //console.log("hai")
+    //var update_product = new Product(req.body)
+    var promise = Product.findByIdAndUpdate(req.params.id, { productcode: 'vivopro' });
+
+    promise.then(function (product) {
+        //console.log({ err, cursor })
+
+        return res.status(200).json({ success: true, message: "Product updation success", data: product })
+
+    }).catch(
+        function (err) {
+            return res.status(500).json({ error: true, message: "Product updation failed" })
+        })
+})
+
+
+
+
+//signin
 app.post('/signin', jsonparser, function (req, res) {
 
     var userCred = {};
